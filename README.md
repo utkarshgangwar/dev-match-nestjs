@@ -44,3 +44,11 @@
 ### A guard must implement a "canActivate" method/fn
 
 
+#### TODO Afterwards:
+##### 1. Connect a database
+##### 2. Authentication & Authorization
+##### 3. Automated Testing
+##### 4. API documentation (swagger)
+##### 5. Deploy your application
+
+
