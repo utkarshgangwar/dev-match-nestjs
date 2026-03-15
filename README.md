@@ -11,3 +11,11 @@
 ### Create a controller file cmd:
 ### nest generate controller profiles
 
+## DTO
+### Data transfer object
+### A definition for incoming data
+
+## Service
+#### nest generate service <name>
+#### Business logic is defined in service
+
