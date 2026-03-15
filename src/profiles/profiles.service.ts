@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CreateProfileDto } from './dto/create-profile.dto';
 
@@ -6,7 +6,7 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 export class ProfilesService {
   private profiles = [
     {
-      id: '001',
+      id: randomUUID(),
       name: 'Shweta Soni',
       description: `Looking for someone to merge with my heart. I'm a full-stack romantic who refactors 
             my feelings until they pass all tests. Bonus points if you can debug my issues while we 
@@ -32,7 +32,14 @@ export class ProfilesService {
   }
 
   findOne(id: string) {
-    return this.profiles.find((item) => item.id === id);
+    // throw new NotFoundException();
+    const profileExist = this.profiles.find((item) => item.id === id);
+    if (!profileExist) {
+    //   throw new NotFoundException();
+    throw new Error(`Profile not found with id ${id}`);
+    } else {
+      return profileExist;
+    }
   }
 
   create(data: CreateProfileDto) {
@@ -53,7 +60,7 @@ export class ProfilesService {
         (this.profiles[foundIndex]['description'] = data.description);
       return this.profiles[foundIndex];
     } else {
-      return {};
+      throw new NotFoundException();
     }
   }
 
@@ -65,6 +72,8 @@ export class ProfilesService {
 
     if (matchingProfileIndex > -1) {
       this.profiles.splice(matchingProfileIndex, 1);
+    } else {
+      throw new NotFoundException();
     }
   }
 }

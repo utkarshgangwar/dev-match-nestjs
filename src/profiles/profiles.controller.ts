@@ -9,10 +9,17 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  //   HttpException,
+  NotFoundException,
+  ParseUUIDPipe,
+  ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ProfilesService } from './profiles.service';
+import type { UUID } from 'crypto';
+import { ProfilesGuard } from './profiles.guard';
 
 /**
  * The below code is a decorator
@@ -34,26 +41,42 @@ export class ProfilesController {
 
   // GET /profiles/:id
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: UUID) {
     return this.profileSerivce.findOne(id);
+    // throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    // throw new NotFoundException();
   }
 
   // POST /profiles
   @Post()
-  create(@Body() createProfileDto: CreateProfileDto): CreateProfileDto {
+  create(
+    @Body(new ValidationPipe()) createProfileDto: CreateProfileDto,
+  ): CreateProfileDto {
     return this.profileSerivce.create(createProfileDto);
   }
 
   // PUT  /profiles/:id
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateProfile: UpdateProfileDto) {
-    return this.profileSerivce.update(id, updateProfile);
+  update(
+    @Param('id', ParseUUIDPipe) id: UUID,
+    // @Body(new ValidationPipe()) updateProfile: UpdateProfileDto,
+    // Pipe is defined at bootstrap file i.e., main.ts
+    @Body() updateProfile: UpdateProfileDto,
+  ) {
+    try {
+      return this.profileSerivce.update(id, updateProfile);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new NotFoundException(error.message);
+      }
+    }
   }
 
   // DELETE /profiles/:id
   @Delete(':id')
+  @UseGuards(ProfilesGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: UUID) {
     return this.profileSerivce.remove(id);
   }
 }
